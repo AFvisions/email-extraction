@@ -9,15 +9,13 @@ from PIL import Image
 email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 
 # Directory containing your client folders
-root_directory = r"C:\Users\AFuma\Desktop\buford-closed-files-LOCAL\clients"
+root_directory = r"C:\Users\AFuma\Desktop\buford-closed-files-LOCAL\clients\A"  # update with your path
 
 # Part 1: Get all client last names
-
 client_last_names = []
 
 # Iterate over all subfolders in the root directory
 for foldername in os.listdir(root_directory):
-    print(f"Processing folder: {foldername}")
     # Extract the client's last name from the folder name
     client_last_name = foldername.split(',')[0]
     client_last_names.append(client_last_name)
@@ -32,7 +30,6 @@ with open('client_last_names.csv', 'w', newline='') as file:
         writer.writerow([name])
 
 # Part 2: Handle folders with a single PDF
-
 with open('client_emails.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     # Write the header row
@@ -49,25 +46,23 @@ with open('client_emails.csv', 'w', newline='') as file:
         if len(pdf_files) == 1:
             # Only one PDF file - let's handle it
             filename = pdf_files[0]
-            print(f"Processing file: {filename}")
             full_path = os.path.join(folder_path, filename)
             
             # Initialize variables to hold the text data and extracted information
             text_data = ""
-            email = ""
+            emails = []
 
             # Open the PDF file
             with open(full_path, 'rb') as f:
-                pdf = PyPDF2.PdfFileReader(f)
+                pdf = PyPDF2.PdfReader(f)
                 # Concatenate the text from each page
-                text_data = " ".join(page.extractText() for page in pdf.pages)
+                text_data = " ".join(page.extract_text() for page in pdf.pages)
 
             # Use the regex to find all email addresses in the text
             email_matches = re.findall(email_regex, text_data)
             if email_matches:
-                # Join all matches into a single string with a semicolon delimiter
-                email = ";".join(email_matches)
-            print(f"Found email addresses: {email}")
+                emails = email_matches  # Save all matches
 
             # Write the data to the CSV
-            writer.writerow([client_last_name, filename, email])
+            for email in emails:
+                writer.writerow([client_last_name, filename, email])
