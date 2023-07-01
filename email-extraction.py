@@ -1,9 +1,9 @@
 import csv
 import os
 import re
-import PyPDF2
-import pytesseract
 from PIL import Image
+from pdf2image import convert_from_path
+import pytesseract
 
 # Regular expression to match email addresses
 email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
@@ -30,6 +30,7 @@ with open('client_last_names.csv', 'w', newline='') as file:
         writer.writerow([name])
 
 # Part 2: Handle folders with a single PDF
+
 with open('client_emails.csv', 'w', newline='') as file:
     writer = csv.writer(file)
     # Write the header row
@@ -47,22 +48,20 @@ with open('client_emails.csv', 'w', newline='') as file:
             # Only one PDF file - let's handle it
             filename = pdf_files[0]
             full_path = os.path.join(folder_path, filename)
-            
-            # Initialize variables to hold the text data and extracted information
-            text_data = ""
-            emails = []
 
-            # Open the PDF file
-            with open(full_path, 'rb') as f:
-                pdf = PyPDF2.PdfReader(f)
-                # Concatenate the text from each page
-                text_data = " ".join(page.extract_text() for page in pdf.pages)
+            # Convert the PDF into images
+            images = convert_from_path(full_path)
+
+            # Initialize variable to hold the text data
+            text_data = ""
+
+            # Iterate over the images and perform OCR on each one
+            for i, image in enumerate(images):
+                text_data += pytesseract.image_to_string(image)
 
             # Use the regex to find all email addresses in the text
             email_matches = re.findall(email_regex, text_data)
-            if email_matches:
-                emails = email_matches  # Save all matches
+            emails = ', '.join(email_matches) if email_matches else None
 
             # Write the data to the CSV
-            for email in emails:
-                writer.writerow([client_last_name, filename, email])
+            writer.writerow([client_last_name, filename, emails])
