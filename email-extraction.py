@@ -4,6 +4,10 @@ import re
 import pytesseract
 from PIL import Image
 from pdf2image import convert_from_path
+import time
+
+# Record the start time
+start_time = time.time()
 
 # Regular expression to match email addresses
 email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
@@ -25,7 +29,7 @@ for foldername in os.listdir(root_directory):
     client_last_names.append(client_last_name)
 
 # Write the client last names to a CSV file
-with open('client_last_names.csv', 'w', newline='') as file:
+with open('client_last_names.csv', 'a', newline='') as file:
     writer = csv.writer(file)
     # Write the header row
     writer.writerow(["ClientLastName"])
@@ -34,7 +38,7 @@ with open('client_last_names.csv', 'w', newline='') as file:
         writer.writerow([name])
 
 # Part 2: Handle folders with a single PDF
-with open('client_emails.csv', 'w', newline='') as file:
+with open('client_emails.csv', 'a', newline='') as file:
     writer = csv.writer(file)
     # Write the header row
     writer.writerow(["ClientLastName", "Filename", "Email"])
@@ -85,3 +89,12 @@ with open('client_emails.csv', 'w', newline='') as file:
 print("Folders not fitting the criteria of containing exactly one PDF:")
 for folder, count in folders_not_one_pdf.items():
     print(f"Folder: {folder}, Number of PDFs: {count}")
+
+    # Record the end time
+end_time = time.time()
+
+# Calculate and print the elapsed time
+elapsed_time = end_time - start_time
+hours, rem = divmod(elapsed_time, 3600)
+minutes, seconds = divmod(rem, 60)
+print(f"The process took {int(hours)}h {int(minutes)}m {int(seconds)}s to complete.")
