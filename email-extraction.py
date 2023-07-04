@@ -10,11 +10,11 @@ import time
 email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 
 # Directory containing your client folders
-root_directory = r"C:\Users\AFuma\Desktop\buford-closed-files-LOCAL\clients\A"  # Remember to adjust this path
+root_directory = r"C:\Users\AFuma\Desktop\buford-closed-files-LOCAL\clients\B"  # Remember to adjust this path
 
 start_time = time.time()
 
-with open('client_data.csv', 'w', newline='') as file:
+with open('client_data.csv', 'a', newline='') as file:
     writer = csv.writer(file)
     writer.writerow(["ClientLastName", "Filename", "Email", "Status"])
 
