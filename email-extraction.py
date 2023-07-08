@@ -10,7 +10,7 @@ import time
 email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 
 # Directory containing your client folders
-root_directory = r"C:\Users\AFuma\Desktop\buford-closed-files-LOCAL\clients\C"  # Remember to adjust this path
+root_directory = r"C:\Users\AFuma\Desktop\buford-closed-files-LOCAL\clients\G"  # Remember to adjust this path
 
 start_time = time.time()
 
