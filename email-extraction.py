@@ -16,23 +16,34 @@ start_time = time.time()
 
 with open('client_data.csv', 'a', newline='') as file:
     writer = csv.writer(file)
-    writer.writerow(["ClientLastName", "Filename", "Email", "Status"])
+    # Write the header row if the file is empty
+    if os.stat('client_data.csv').st_size == 0:
+        writer.writerow(["ClientLastName", "Filename", "Email", "Status", "Page"])
 
     # Iterate over all subfolders in the root directory
     for foldername in os.listdir(root_directory):
-        print(f"Processing Folder: {foldername}")
         # Extract the client's last name from the folder name
         client_last_name = foldername.split(',')[0]
 
         # Check the number of PDF files in the folder
         folder_path = os.path.join(root_directory, foldername)
         pdf_files = [f for f in os.listdir(folder_path) if f.endswith('.pdf')]
-        
-        if len(pdf_files) == 1:
+
+        status = ""
+        if len(pdf_files) == 0:
+            status = "No PDF"
+            writer.writerow([client_last_name, None, None, status, None])
+            print(f"Folder {foldername} has no PDFs.")
+        elif len(pdf_files) > 1:
+            status = "Multiple PDFs"
+            writer.writerow([client_last_name, None, None, status, None])
+            print(f"Folder {foldername} contains multiple PDFs.")
+        else:
             # Only one PDF file - let's handle it
+            status = "Processed"
             filename = pdf_files[0]
             full_path = os.path.join(folder_path, filename)
-            
+
             print("Starting PDF Extraction for " + filename)
 
             # Initialize variables to hold the text data and extracted information
@@ -47,22 +58,22 @@ with open('client_data.csv', 'a', newline='') as file:
                 text = pytesseract.image_to_string(images[i])
                 text_data += text
 
+                # Use the regex to find all email addresses in the text
+                email_matches = re.findall(email_regex, text_data)
+                if email_matches:
+                    # If we find any email addresses, add them to the email list
+                    # along with the current page number (i + 1 because pages are 1-indexed)
+                    emails.extend([(email, i + 1) for email in email_matches])  # Each item in emails is now a tuple (email, page)
+
             print("Starting Email Extraction for " + filename)
-            # Use the regex to find all email addresses in the text
-            email_matches = re.findall(email_regex, text_data)
-            if email_matches:
-                emails.extend(email_matches)  # Add all found emails to the list
 
             # Write the data to the CSV
-            for email in emails:
-                writer.writerow([client_last_name, filename, email, "Processed"])
-            print("Completed Processing for " + foldername)
-        else:
-            # Write the status to the CSV
-            if len(pdf_files) == 0:
-                writer.writerow([client_last_name, "", "", "No PDF"])
-            else:
-                writer.writerow([client_last_name, "", "", "Multiple PDFs"])
+            for email, page in emails:
+                writer.writerow([client_last_name, filename, email, status, page])
 
-end_time = time.time()
-print("Time taken: " + str(end_time - start_time) + " seconds")
+            print("Completed Processing for " + foldername)
+
+elapsed_time = time.time() - start_time
+hours, rem = divmod(elapsed_time, 3600)
+minutes, seconds = divmod(rem, 60)
+print(f"Total time taken: {int(hours)}h {int(minutes)}m {int(seconds)}s")
