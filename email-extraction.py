@@ -10,12 +10,15 @@ import time
 email_regex = r'\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
 
 # Directory containing your client folders
-root_directory = r"C:\Users\AFuma\Desktop\buford-closed-files-LOCAL\clients\A"  # Remember to adjust this path
+root_directory = r"C:\Users\AFuma\Desktop\buford-closed-files-LOCAL\clients\T,U,V,W,Y,X,Z"  # Remember to adjust this path
 
 start_time = time.time()
 
 # CSV filename
 csv_filename = 'client_data.csv'
+
+# Initialize emails set outside of the main loop
+emails = set()
 
 with open(csv_filename, 'a', newline='') as file:
     writer = csv.writer(file)
@@ -46,7 +49,6 @@ with open(csv_filename, 'a', newline='') as file:
 
         # Initialize variables to hold the text data and extracted information
         text_data = []
-        emails = set()
 
         print("Starting Image Conversion and OCR for " + filename)
         # Convert PDF to images and perform OCR
